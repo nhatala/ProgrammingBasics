@@ -48,10 +48,11 @@ def main():
             # Tulostetaan varaustiedot
             print(varaustiedot)
 
+        # Lasketaan ja tulostetaan kaikkien varausten yhteishinta
         yhteishinta = 0.0
         with open(varaukset, "r", encoding="utf-8") as file:
             for line in file:
-                yhteishinta += round(float(varaus[4]) * float(varaus[5]), 2)
+                yhteishinta += round(int(line.split("|")[4]) * float(line.split("|")[5]), 2)
 
         print(f"Yhteishinta: {str(yhteishinta).replace('.', ',')} €")
 
