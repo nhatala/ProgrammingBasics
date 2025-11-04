@@ -1,1 +1,3 @@
-123|Anna Virtanen|2025-10-31|10:00|2|19.95|True|Kokoustila A|0401234567|anna.virtanen@example.com
+456|Esko Virtanen|2025-11-04|22:00|3|19.95|True|Kokoustila Y|0401234567|esko.virtanen@example.com
+649|Ritva Pekkanen|2025-11-01|16:00|1|14.95|False|Kokoustila B|0445556655|ritva.pekkanen@example.com
+766|Kalevi Eeronen|2025-11-03|08:00|4|10.50|True|Kokoustila A|0451177659|kalevi.eeronen@example.com
