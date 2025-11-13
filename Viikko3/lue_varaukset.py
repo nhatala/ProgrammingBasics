@@ -77,17 +77,23 @@ def main():
         sahkoposti = varaus[9]
         return sahkoposti
 
-    print(f"Varausnumero: {hae_varausnumero(varaus)}")
-    print(f"Varaaja: {hae_varaaja(varaus)}")
-    print(f"Päivämäärä: {hae_paiva(varaus)}")
-    print(f"Aloitusaika: {hae_aloitusaika(varaus)}")
-    print(f"Tuntimäärä: {hae_tuntimaara(varaus)}")
-    print(f"Tuntihinta: {hae_tuntihinta(varaus)}")
-    print(f"Kokonaishinta: {laske_kokonaishinta(varaus)}")
-    print(f"Maksettu: {hae_maksettu(varaus)}")
-    print(f"Kohde: {hae_kohde(varaus)}")
-    print(f"Puhelin: {hae_puhelin(varaus)}")
-    print(f"Sähköposti: {hae_sahkoposti(varaus)}")
+    def tulosta_varaus(varaus):
+        varaukset = f""" 
+        Varausnumero: {hae_varausnumero(varaus)}
+        Varaaja: {hae_varaaja(varaus)}
+        Päivämäärä: {hae_paiva(varaus)}
+        Aloitusaika: {hae_aloitusaika(varaus)}
+        Tuntimäärä: {hae_tuntimaara(varaus)}
+        Tuntihinta: {hae_tuntihinta(varaus)}
+        Kokonaishinta: {laske_kokonaishinta(varaus)}
+        Maksettu: {hae_maksettu(varaus)}
+        Kohde: {hae_kohde(varaus)}
+        Puhelin: {hae_puhelin(varaus)}
+        Sähköposti: {hae_sahkoposti(varaus)}
+        """
+        return varaukset
+    
+    print(tulosta_varaus(varaus))
 
 if __name__ == "__main__":
     main()
