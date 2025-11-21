@@ -22,13 +22,8 @@ int | str | str | str | datetime.date | datetime.time | int | float | bool | str
 from datetime import datetime
 
 def muunna_varaustiedot(varaus: list) -> list:
-    # Tähän tulee siis varaus oletustietotyypeillä (str)
-    # Varauksessa on 11 saraketta -> Lista -> Alkiot 0-10
-    # Muuta tietotyypit haluamallasi tavalla -> Seuraavassa esimerkki ensimmäisestä alkioista
     muutettuvaraus = []
-    # Ensimmäisen alkion = varaus[0] muunnos
     muutettuvaraus.append(int(varaus[0]))
-    # Ja tästä jatkuu
     muutettuvaraus.append(str(varaus[1]))
     muutettuvaraus.append(str(varaus[2]))
     muutettuvaraus.append(str(varaus[3]))
@@ -42,8 +37,6 @@ def muunna_varaustiedot(varaus: list) -> list:
     return muutettuvaraus
 
 def hae_varaukset(varaustiedosto: str) -> list:
-    # HUOM! Tälle funktioille ei tarvitse tehdä mitään!
-    # Jos muutat, kommentoi miksi muutit
     varaukset = []
     varaukset.append(["varausId", "nimi", "sähköposti", "puhelin", "varauksenPvm", "varauksenKlo", "varauksenKesto", "hinta", "varausVahvistettu", "varattuTila", "varausLuotu"])
     with open(varaustiedosto, "r", encoding="utf-8") as f:
@@ -62,9 +55,6 @@ def main():
     for varaus in varaukset[1:]:
         if varaus[8] == True:
             print(f"- {varaus[1]}, {varaus[9]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}")
-        #print(" | ".join(str(x) for x in varaus))
-        #tietotyypit = [type(x).__name__ for x in varaus]
-        #print(" | ".join(tietotyypit))
 
     print("\n2) Pitkät varaukset (≥ 3 h)")
 
@@ -93,6 +83,44 @@ def main():
     for varaus in varaukset[1:]:
         kokonaistulot = sum(v[7]*v[6] for v in varaukset[1:] if v[8] == True)
     print(f"Vahvistettujen varausten kokonaistulot: {kokonaistulot:.2f}".replace('.', ',') + " €")
+
+    print("\nKallein varaus:")
+
+    def kokonaishinta(varauksenKesto, hinta):
+            kokonaishinta = varauksenKesto * hinta
+            return kokonaishinta
+    
+    def kallein_varaus(varaukset):
+        kallein = None
+        korkein_hinta = 0
+        for varaus in varaukset:
+            if varaus[8] == True:
+                yhteishinta = kokonaishinta(varaus[6], varaus[7])
+                if yhteishinta > korkein_hinta:
+                    korkein_hinta = yhteishinta
+                    kallein = varaus
+        return kallein
+
+    kalleinvaraus = kallein_varaus(varaukset[1:])
+    print(f"- Nimi: {kalleinvaraus[1]}")
+    print(f"- Varattu tila: {kalleinvaraus[9]}")
+    print(f"- Päivä: {kalleinvaraus[4].strftime('%d.%m.%Y')}")
+    print(f"- Kellonaika: {kalleinvaraus[5].strftime('%H.%M')}")
+    print(f"- Kesto: {kalleinvaraus[6]} h")
+    print(f"- Kokonaishinta: {kokonaishinta(kalleinvaraus[6], kalleinvaraus[7]):.2f} €".replace('.', ','))   
+          
+    print("\nVarausten määrä päivittäin:")
+    
+    for varaus in varaukset[1:]:
+        paivittain = {}
+        for varaus in varaukset[1:]:
+            pvm = varaus[4].strftime('%d.%m.%Y')
+            if pvm in paivittain:
+                paivittain[pvm] += 1
+            else:
+                paivittain[pvm] = 1
+    for pvm, maara in paivittain.items():
+        print(f"- {pvm}: {maara} kpl")
 
 if __name__ == "__main__":
     main()
