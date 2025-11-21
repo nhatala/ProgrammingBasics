@@ -19,7 +19,7 @@ int | str | str | str | datetime.date | datetime.time | int | float | bool | str
 int | str | str | str | datetime.date | datetime.time | int | float | bool | str | datetime
 ------------------------------------------------------------------------
 """
-from datetime import datetime, date, time
+from datetime import datetime
 
 def muunna_varaustiedot(varaus: list) -> list:
     # Tähän tulee siis varaus oletustietotyypeillä (str)
@@ -54,17 +54,45 @@ def hae_varaukset(varaustiedosto: str) -> list:
     return varaukset
 
 def main():
-    # HUOM! seuraaville riveille ei tarvitse tehdä mitään!
-    # Jos muutat, kommentoi miksi muutit
-    # Kutsutaan funkioita hae_varaukset, joka palauttaa kaikki varaukset oikeilla tietotyypeillä
+    
     varaukset = hae_varaukset("varaukset.txt")
-    print(" | ".join(varaukset[0]))
-    print("------------------------------------------------------------------------")
+
+    print("1) Vahvistetut varaukset")
+
     for varaus in varaukset[1:]:
-        print(" | ".join(str(x) for x in varaus))
-        tietotyypit = [type(x).__name__ for x in varaus]
-        print(" | ".join(tietotyypit))
-        print("------------------------------------------------------------------------")
+        if varaus[8] == True:
+            print(f"- {varaus[1]}, {varaus[9]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}")
+        #print(" | ".join(str(x) for x in varaus))
+        #tietotyypit = [type(x).__name__ for x in varaus]
+        #print(" | ".join(tietotyypit))
+
+    print("\n2) Pitkät varaukset (≥ 3 h)")
+
+    for varaus in varaukset[1:]:
+        if varaus[6] >= 3:
+            print(f"- {varaus[1]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}, kesto {varaus[6]} h, {varaus[9]}")
+
+    print("\n3) Varausten vahvistusstatus")
+
+    for varaus in varaukset[1:]:
+        if varaus[8] == True:
+            print(f"{varaus[1]} -> Vahvistettu")
+        else:
+            print(f"{varaus[1]} -> Ei vahvistettu")
+
+    print("\n4) Yhteenveto vahvistuksista")
+
+    for varaus in varaukset[1:]:
+        Vahvistettu = sum(1 for v in varaukset[1:] if v[8] == True)
+        Ei_vahvistettu = sum(1 for v in varaukset[1:] if v[8] == False)
+    print(f"- Vahvistettuja varauksia: {Vahvistettu} kpl")
+    print(f"- Ei vahvistettuja varauksia: {Ei_vahvistettu} kpl")  
+
+    print("\n5) Vahvistettujen varausten kokonaistulot")
+
+    for varaus in varaukset[1:]:
+        kokonaistulot = sum(v[7]*v[6] for v in varaukset[1:] if v[8] == True)
+    print(f"Vahvistettujen varausten kokonaistulot: {kokonaistulot:.2f}".replace('.', ',') + " €")
 
 if __name__ == "__main__":
     main()
