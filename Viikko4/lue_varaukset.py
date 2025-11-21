@@ -22,6 +22,7 @@ int | str | str | str | datetime.date | datetime.time | int | float | bool | str
 from datetime import datetime
 
 def muunna_varaustiedot(varaus: list) -> list:
+    """Muuntaa varauksen tiedot oikeisiin tietotyyppeihin."""
     muutettuvaraus = []
     muutettuvaraus.append(int(varaus[0]))
     muutettuvaraus.append(str(varaus[1]))
@@ -37,6 +38,7 @@ def muunna_varaustiedot(varaus: list) -> list:
     return muutettuvaraus
 
 def hae_varaukset(varaustiedosto: str) -> list:
+    """Hakee varaukset tiedostosta ja muuntaa ne oikeisiin tietotyyppeihin."""
     varaukset = []
     varaukset.append(["varausId", "nimi", "sähköposti", "puhelin", "varauksenPvm", "varauksenKlo", "varauksenKesto", "hinta", "varausVahvistettu", "varattuTila", "varausLuotu"])
     with open(varaustiedosto, "r", encoding="utf-8") as f:
@@ -51,19 +53,19 @@ def main():
     varaukset = hae_varaukset("varaukset.txt")
 
     print("1) Vahvistetut varaukset")
-
+    """Tulostaa vahvistetut varaukset."""
     for varaus in varaukset[1:]:
         if varaus[8] == True:
             print(f"- {varaus[1]}, {varaus[9]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}")
 
     print("\n2) Pitkät varaukset (≥ 3 h)")
-
+    """Tulostaa pitkät varaukset (kesto vähintään 3 tuntia)."""
     for varaus in varaukset[1:]:
         if varaus[6] >= 3:
             print(f"- {varaus[1]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}, kesto {varaus[6]} h, {varaus[9]}")
 
     print("\n3) Varausten vahvistusstatus")
-
+    """Tulostaa varausten vahvistusstatuksen."""
     for varaus in varaukset[1:]:
         if varaus[8] == True:
             print(f"{varaus[1]} -> Vahvistettu")
@@ -71,7 +73,7 @@ def main():
             print(f"{varaus[1]} -> Ei vahvistettu")
 
     print("\n4) Yhteenveto vahvistuksista")
-
+    """Tulostaa yhteenvedon varausten vahvistusstatuksesta."""
     for varaus in varaukset[1:]:
         Vahvistettu = sum(1 for v in varaukset[1:] if v[8] == True)
         Ei_vahvistettu = sum(1 for v in varaukset[1:] if v[8] == False)
@@ -79,14 +81,15 @@ def main():
     print(f"- Ei vahvistettuja varauksia: {Ei_vahvistettu} kpl")  
 
     print("\n5) Vahvistettujen varausten kokonaistulot")
-
+    """Laskee vahvistettujen varausten kokonaistulot."""
     for varaus in varaukset[1:]:
         kokonaistulot = sum(v[7]*v[6] for v in varaukset[1:] if v[8] == True)
     print(f"Vahvistettujen varausten kokonaistulot: {kokonaistulot:.2f}".replace('.', ',') + " €")
 
     print("\nKallein varaus:")
-
+    """Etsii ja tulostaa kalleimman vahvistetun varauksen tiedot."""
     def kokonaishinta(varauksenKesto, hinta):
+            """Laskee varauksen kokonaishinnan."""
             kokonaishinta = varauksenKesto * hinta
             return kokonaishinta
     
@@ -110,8 +113,9 @@ def main():
     print(f"- Kokonaishinta: {kokonaishinta(kalleinvaraus[6], kalleinvaraus[7]):.2f} €".replace('.', ','))   
           
     print("\nVarausten määrä päivittäin:")
-    
+    """Laskee varausten määrän päivittäin."""
     for varaus in varaukset[1:]:
+        """Laskee varausten määrän päivittäin."""
         paivittain = {}
         for varaus in varaukset[1:]:
             pvm = varaus[4].strftime('%d.%m.%Y')
