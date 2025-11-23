@@ -20,6 +20,7 @@ int | str | str | str | datetime.date | datetime.time | int | float | bool | str
 ------------------------------------------------------------------------
 """
 from datetime import datetime
+from importlib.metadata import requires
 
 def muunna_varaustiedot(varaus: list) -> list:
     """Muuntaa varauksen tiedot oikeisiin tietotyyppeihin."""
@@ -125,6 +126,53 @@ def main():
                 paivittain[pvm] = 1
     for pvm, maara in paivittain.items():
         print(f"- {pvm}: {maara} kpl")
+
+    def tilahaku(haetut_tilat):
+        """Hakee varaukset käyttäjän syötteen perusteella"""
+        for varaus in varaukset[1:]:
+            if varaus[9] == haettu_tila:
+                haetut_varaukset.append(varaus)
+        return(haetut_varaukset)
+    haetut_varaukset = []
+    haettu_tila = input("\nAnna tilan nimi: ")
+    tilahaku(haettu_tila)
+    if len(haetut_varaukset) == 0:
+        print("Tiloja ei löytynyt. Tarkista, että kirjoitit tilan nimen oikein.")
+    else:
+        print(f"Varaukset tilaan '{haettu_tila}':")
+        for varaus in haetut_varaukset:
+            print(f"- {varaus[1]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}, kesto {varaus[6]} h")
+
+    def hae_tulevat(tulevat):
+        """Hakee tulevat varaukset käyttäjän antamasta päivämäärästä eteenpäin"""
+        for varaus in varaukset[1:]:
+            if varaus[4] > tulevienpvm:
+                tulevat_varaukset.append(varaus)
+        return tulevat_varaukset
+    
+    tulevat_varaukset = []
+    tulevienpvm = input("\nAnna päivämäärä (pp.kk.vvvv): ")
+    tarkista_muoto = tulevienpvm.split('.')
+    if len(tarkista_muoto) != 3:
+        input_format_invalid = True
+        print("Virheellinen päivämäärän muoto. Käytä muotoa pp.kk.vvvv")
+        return
+    tulevienpvm = datetime.strptime(tulevienpvm, '%d.%m.%Y').date()
+    hae_tulevat(tulevienpvm)
+    if len(tulevat_varaukset) == 0:
+        print("Varauksia ei löytynyt. Tarkistathan, että kirjoitit päivämäärän oikeassa muodossa.")
+    else:
+        for varaus in tulevat_varaukset:
+            print(f"- {varaus[1]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}, {varaus[9]}")
+
+    vahvistetutVaraukset = []
+    for varaus in varaukset[1:]:
+        """Tarkistaa ja tallentaa vahvistetut varaukset erilliseen listaan."""
+        if varaus[8] == True:
+            vahvistetutVaraukset.append(varaus)
+    varaustenKeskimKesto = sum(v[6] for v in vahvistetutVaraukset) / len(vahvistetutVaraukset)
+    print(f"\nVahvistettujen varausten keskimääräinen kesto: {varaustenKeskimKesto:.2f}".replace('.', ',') + " h")
+
 
 if __name__ == "__main__":
     main()
