@@ -45,14 +45,14 @@ def finnish_day_name(english_day_name: str) -> str:
     }
     return days.get(english_day_name, english_day_name)
 
-def consumption_per_hour(meter_data: list) -> list[float]:
+def consumption_per_hour(meter_data: list) -> list:
     """Calculates consumption for every phase per hour, and returns a list of floats."""    
     consumption_p1 = meter_data[1]
     consumption_p2 = meter_data[2]
     consumption_p3 = meter_data[3]
     return [consumption_p1, consumption_p2, consumption_p3]
 
-def production_per_hour(meter_data: list) -> list[float]:
+def production_per_hour(meter_data: list) -> list:
     """Calculates production for every phase per hour, and returns a list of floats."""
     production_p1 = meter_data[4]
     production_p2 = meter_data[5]
@@ -66,25 +66,42 @@ def main() -> None:
     print("Päivä\t\tPvm\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
     print("\t\t(pp.kk.vvvv)\tv1\tv2\tv3\t\tv1\tv2\tv3")
     print("-----------------------------------------------------------------------------------")
-
     
     meter_data = read_meter_data("viikko42.csv")
-    currentDate = meter_data[0][0].date()
     """Calculate total consumption and production per day and print the results."""
-    for data in meter_data:
-        if data[0].date() == currentDate:
-            total_consumption_per_day += consumption_per_hour(data)
-            total_production_per_day += production_per_hour(data)
-        elif data[0].date() != currentDate:
-            finnish_day = finnish_day_name(currentDate.strftime("%A"))
-            date_str = currentDate.strftime("%d.%m.%Y")
-            if finnish_day == "Tiistai" or finnish_day == "Torstai":
-                print(f"{finnish_day}\t\t{date_str}\t{total_consumption_per_day[0]:.2f}\t{total_consumption_per_day[1]:.2f}\t{total_consumption_per_day[2]:.2f}\t\t{total_production_per_day[0]:.2f}\t{total_production_per_day[1]:.2f}\t{total_production_per_day[2]:.2f}")
-                currentDate = data[0].date()            
-            else:
-                print(f"{finnish_day}\t{date_str}\t{total_consumption_per_day[0]:.2f}\t{total_consumption_per_day[1]:.2f}\t{total_consumption_per_day[2]:.2f}\t\t{total_production_per_day[0]:.2f}\t{total_production_per_day[1]:.2f}\t{total_production_per_day[2]:.2f}")
-                currentDate = data[0].date()
-         
+    consumption_per_day = [0.0, 0.0, 0.0]
+    production_per_day = [0.0, 0.0, 0.0]
+    currentDate = meter_data[0][0].date()
+    lastline = meter_data[-1]
+    for line in meter_data:
+        finnish_day = finnish_day_name(currentDate.strftime("%A"))
+        date_str = currentDate.strftime("%d.%m.%Y")
+        if line is lastline:
+            consumption_per_day[0] += consumption_per_hour(line)[0]
+            consumption_per_day[1] += consumption_per_hour(line)[1]
+            consumption_per_day[2] += consumption_per_hour(line)[2]
+            production_per_day[0] += production_per_hour(line)[0]
+            production_per_day[1] += production_per_hour(line)[1]
+            production_per_day[2] += production_per_hour(line)[2]
+            print(f"{finnish_day}\t{date_str}\t{consumption_per_day[0]:.2f}\t{consumption_per_day[1]:.2f}\t{consumption_per_day[2]:.2f}\t\t{production_per_day[0]:.2f}\t{production_per_day[1]:.2f}\t{production_per_day[2]:.2f}")
+        elif line[0].date() == currentDate:
+            consumption_per_day[0] += consumption_per_hour(line)[0]
+            consumption_per_day[1] += consumption_per_hour(line)[1]
+            consumption_per_day[2] += consumption_per_hour(line)[2]
+            production_per_day[0] += production_per_hour(line)[0]
+            production_per_day[1] += production_per_hour(line)[1]
+            production_per_day[2] += production_per_hour(line)[2]
+        elif finnish_day == "Tiistai" or finnish_day == "Torstai":
+            print(f"{finnish_day}\t\t{date_str}\t{consumption_per_day[0]:.2f}\t{consumption_per_day[1]:.2f}\t{consumption_per_day[2]:.2f}\t\t{production_per_day[0]:.2f}\t{production_per_day[1]:.2f}\t{production_per_day[2]:.2f}")
+            currentDate = line[0].date() 
+            consumption_per_day = [0.0, 0.0, 0.0]
+            production_per_day = [0.0, 0.0, 0.0]
+        else:
+            print(f"{finnish_day}\t{date_str}\t{consumption_per_day[0]:.2f}\t{consumption_per_day[1]:.2f}\t{consumption_per_day[2]:.2f}\t\t{production_per_day[0]:.2f}\t{production_per_day[1]:.2f}\t{production_per_day[2]:.2f}")
+            currentDate = line[0].date() 
+            consumption_per_day = [0.0, 0.0, 0.0]
+            production_per_day = [0.0, 0.0, 0.0]
+            
 
 if __name__ == "__main__":
     main()
