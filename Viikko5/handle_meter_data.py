@@ -1,7 +1,7 @@
 # Copyright 2025 Niko Hätälä
 # License: MIT
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Dict
 
 
@@ -64,32 +64,27 @@ def main() -> None:
     print("Viikon 42 sähkönkulutus ja -tuotanto (kWh, vaiheittain)")
     print()
     print("Päivä\t\tPvm\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
-    print("\t\t(pp.kk.vvvv)\tp1\tp2\tp3\t\tp1\tp2\tp3")
+    print("\t\t(pp.kk.vvvv)\tv1\tv2\tv3\t\tv1\tv2\tv3")
     print("-----------------------------------------------------------------------------------")
 
+    
     meter_data = read_meter_data("viikko42.csv")
-    currentDate = meter_data[0]
-    total_consumption_per_day = [0.0, 0.0, 0.0]
-    total_production_per_day = [0.0, 0.0, 0.0]
+    currentDate = meter_data[0][0].date()
+    """Calculate total consumption and production per day and print the results."""
     for data in meter_data:
-        if data[0].date() != currentDate[0].date():
-            finnish_day = finnish_day_name(currentDate[0].strftime("%A"))
+        if data[0].date() == currentDate:
+            total_consumption_per_day += consumption_per_hour(data)
+            total_production_per_day += production_per_hour(data)
+        elif data[0].date() != currentDate:
+            finnish_day = finnish_day_name(currentDate.strftime("%A"))
             date_str = currentDate.strftime("%d.%m.%Y")
-            print(f"{finnish_day:<10}\t{date_str}\t{total_consumption_per_day[0]:<7.2f}\t{total_consumption_per_day[1]:<7.2f}\t{total_consumption_per_day[2]:<7.2f}\t\t{total_production_per_day[0]:<7.2f}\t{total_production_per_day[1]:<7.2f}\t{total_production_per_day[2]:<7.2f}")
-            currentDate = data[0].date()
-            total_consumption_per_day = [0.0, 0.0, 0.0]
-            total_production_per_day = [0.0, 0.0, 0.0]
-        else:
-            consumption = consumption_per_hour(data)
-            production = production_per_hour(data)
-            total_consumption_per_day[0] += consumption[0]
-            total_consumption_per_day[1] += consumption[1]
-            total_consumption_per_day[2] += consumption[2]
-            total_production_per_day[0] += production[0]
-            total_production_per_day[1] += production[1]
-            total_production_per_day[2] += production[2]
-
-                
+            if finnish_day == "Tiistai" or finnish_day == "Torstai":
+                print(f"{finnish_day}\t\t{date_str}\t{total_consumption_per_day[0]:.2f}\t{total_consumption_per_day[1]:.2f}\t{total_consumption_per_day[2]:.2f}\t\t{total_production_per_day[0]:.2f}\t{total_production_per_day[1]:.2f}\t{total_production_per_day[2]:.2f}")
+                currentDate = data[0].date()            
+            else:
+                print(f"{finnish_day}\t{date_str}\t{total_consumption_per_day[0]:.2f}\t{total_consumption_per_day[1]:.2f}\t{total_consumption_per_day[2]:.2f}\t\t{total_production_per_day[0]:.2f}\t{total_production_per_day[1]:.2f}\t{total_production_per_day[2]:.2f}")
+                currentDate = data[0].date()
+         
 
 if __name__ == "__main__":
     main()
