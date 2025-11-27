@@ -4,7 +4,6 @@
 from datetime import datetime
 from typing import List, Dict
 
-meter_datafile = "Viikko42.csv"
 
 def edit_data_types(meter_data: list) -> list:
     """Edits the types of the meter data."""
@@ -37,9 +36,8 @@ def read_meter_data(meter_datafile: str) -> list:
 def main() -> None:
     """Main function to handle meter data."""
     
-    meter_data = read_meter_data(meter_datafile)
-    print(type(meter_data[1][0]))  # Should print <class 'datetime.datetime'>
-    print(type(meter_data[1][1]))  # Should print <class 'int'>
+    meter_data = read_meter_data("viikko42.csv")
+    print("Testing read_meter_data function:")
     
 
     if __name__ == "__main__":
