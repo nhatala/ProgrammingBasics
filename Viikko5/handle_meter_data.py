@@ -6,39 +6,87 @@ from typing import List, Dict
 
 
 def edit_data_types(meter_data: list) -> list:
-    """Edits the types of the meter data."""
+    """Edits the types of the meter data and changes power values from Wh to kWh."""
     meter_data_edited = []
-    for row in meter_data:
-        if row[0] == "Date and time":
-            meter_data_edited.append(row)
-        else:
-            date_time = datetime.strptime(row[0].split("T")[0], "%Y-%m-%d %H:%M:%S")
-            phase1_consumption = int(row[1])
-            phase2_consumption = int(row[2])
-            phase3_consumption = int(row[3])
-            production_phase1 = int(row[4])
-            production_phase2 = int(row[5])
-            production_phase3 = int(row[6])
-            meter_data_edited.append([date_time, phase1_consumption, phase2_consumption, phase3_consumption, production_phase1, production_phase2, production_phase3])
+    for meter_data in meter_data:
+        date_time = datetime.strptime((meter_data[0]), "%Y-%m-%dT%H:%M:%S")
+        phase1_consumption = float(meter_data[1]) / 1000
+        phase2_consumption = float(meter_data[2]) / 1000
+        phase3_consumption = float(meter_data[3]) / 1000
+        production_phase1 = float(meter_data[4]) / 1000
+        production_phase2 = float(meter_data[5]) / 1000
+        production_phase3 = float(meter_data[6]) / 1000
+        meter_data_edited.append([date_time, phase1_consumption, phase2_consumption, phase3_consumption, production_phase1, production_phase2, production_phase3])
     return meter_data_edited
 
 def read_meter_data(meter_datafile: str) -> list:
     """Reads meter data, changes types and returns a new list with edited types."""
     meter_data = []
-    meter_data.append(["Date and time", "Phase 1 consumption Wh", "Phase 2 consumption Wh", "Phase 3 consumption Wh", "Production phase 1 Wh", "Production phase 2 Wh", "Production phase 3 Wh"])
     with open(meter_datafile, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip().split(";")
-            meter_data.append(line)
+            if line[0] == "Aika":
+                continue
+            else:
+                meter_data.append(line)
     meter_data = edit_data_types(meter_data)
     return meter_data
 
+def finnish_day_name(english_day_name: str) -> str:
+    """Converts English day names to Finnish."""
+    days = {
+        "Monday": "Maanantai",
+        "Tuesday": "Tiistai",
+        "Wednesday": "Keskiviikko",
+        "Thursday": "Torstai",
+        "Friday": "Perjantai",
+        "Saturday": "Lauantai",
+        "Sunday": "Sunnuntai"
+    }
+    return days.get(english_day_name, english_day_name)
+
+def total_consumption_per_hour(meter_data: list) -> list[float]:
+    """Calculates total consumption for every phase per hour, and returns a list of floats."""
+    total_consumption_p1= 0.0
+    total_consumption_p2= 0.0
+    total_consumption_p3= 0.0
+    for data in meter_data:
+        total_consumption_p1 += data[1]
+        total_consumption_p2 += data[2]
+        total_consumption_p3 += data[3]
+    return [total_consumption_p1, total_consumption_p2, total_consumption_p3]
+
+def total_production_per_hour(meter_data: list) -> list[float]:
+    """Calculates total production for every phase per hour, and returns a list of floats."""
+    total_production_p1 = 0.0
+    total_production_p2 = 0.0
+    total_production_p3 = 0.0
+    for data in meter_data:
+        total_production_p1 += data[4]
+        total_production_p2 += data[5]
+        total_production_p3 += data[6]
+    return [total_production_p1, total_production_p2, total_production_p3]
+
 def main() -> None:
     """Main function to handle meter data."""
-    
-    meter_data = read_meter_data("viikko42.csv")
-    print("Testing read_meter_data function:")
-    
+    print("Viikon 42 sähkönkulutus ja -tuotanto (kWh, vaiheittain)")
+    print()
+    print("Päivä\t\tPvm\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
+    print("\t\t(pp.kk.vvvv)\tp1\tp2\tp3\t\tp1\tp2\tp3")
+    print("-----------------------------------------------------------------------------------")
 
-    if __name__ == "__main__":
-        main()
+    meter_data = read_meter_data("viikko42.csv")
+    currentDate = meter_data[0][0].date()
+    for data in meter_data:
+        finnish_date = data[0].strftime("%d.%m.%Y")
+        total_consumption_per_day = [0.0, 0.0, 0.0]
+        total_production_per_day = [0.0, 0.0, 0.0]
+        while currentDate <= data[0].date():
+            total_consumption_per_day += total_consumption_per_hour(meter_data)
+            total_production_per_day += total_production_per_hour(meter_data)
+        try
+        currentDate = data[0].date()
+                
+
+if __name__ == "__main__":
+    main()
