@@ -45,27 +45,19 @@ def finnish_day_name(english_day_name: str) -> str:
     }
     return days.get(english_day_name, english_day_name)
 
-def total_consumption_per_hour(meter_data: list) -> list[float]:
-    """Calculates total consumption for every phase per hour, and returns a list of floats."""
-    total_consumption_p1= 0.0
-    total_consumption_p2= 0.0
-    total_consumption_p3= 0.0
-    for data in meter_data:
-        total_consumption_p1 += data[1]
-        total_consumption_p2 += data[2]
-        total_consumption_p3 += data[3]
-    return [total_consumption_p1, total_consumption_p2, total_consumption_p3]
+def consumption_per_hour(meter_data: list) -> list[float]:
+    """Calculates consumption for every phase per hour, and returns a list of floats."""    
+    consumption_p1 = meter_data[1]
+    consumption_p2 = meter_data[2]
+    consumption_p3 = meter_data[3]
+    return [consumption_p1, consumption_p2, consumption_p3]
 
-def total_production_per_hour(meter_data: list) -> list[float]:
-    """Calculates total production for every phase per hour, and returns a list of floats."""
-    total_production_p1 = 0.0
-    total_production_p2 = 0.0
-    total_production_p3 = 0.0
-    for data in meter_data:
-        total_production_p1 += data[4]
-        total_production_p2 += data[5]
-        total_production_p3 += data[6]
-    return [total_production_p1, total_production_p2, total_production_p3]
+def production_per_hour(meter_data: list) -> list[float]:
+    """Calculates production for every phase per hour, and returns a list of floats."""
+    production_p1 = meter_data[4]
+    production_p2 = meter_data[5]
+    production_p3 = meter_data[6]
+    return [production_p1, production_p2, production_p3]
 
 def main() -> None:
     """Main function to handle meter data."""
@@ -76,16 +68,27 @@ def main() -> None:
     print("-----------------------------------------------------------------------------------")
 
     meter_data = read_meter_data("viikko42.csv")
-    currentDate = meter_data[0][0].date()
+    currentDate = meter_data[0]
+    total_consumption_per_day = [0.0, 0.0, 0.0]
+    total_production_per_day = [0.0, 0.0, 0.0]
     for data in meter_data:
-        finnish_date = data[0].strftime("%d.%m.%Y")
-        total_consumption_per_day = [0.0, 0.0, 0.0]
-        total_production_per_day = [0.0, 0.0, 0.0]
-        while currentDate <= data[0].date():
-            total_consumption_per_day += total_consumption_per_hour(meter_data)
-            total_production_per_day += total_production_per_hour(meter_data)
-        try
-        currentDate = data[0].date()
+        if data[0].date() != currentDate[0].date():
+            finnish_day = finnish_day_name(currentDate[0].strftime("%A"))
+            date_str = currentDate.strftime("%d.%m.%Y")
+            print(f"{finnish_day:<10}\t{date_str}\t{total_consumption_per_day[0]:<7.2f}\t{total_consumption_per_day[1]:<7.2f}\t{total_consumption_per_day[2]:<7.2f}\t\t{total_production_per_day[0]:<7.2f}\t{total_production_per_day[1]:<7.2f}\t{total_production_per_day[2]:<7.2f}")
+            currentDate = data[0].date()
+            total_consumption_per_day = [0.0, 0.0, 0.0]
+            total_production_per_day = [0.0, 0.0, 0.0]
+        else:
+            consumption = consumption_per_hour(data)
+            production = production_per_hour(data)
+            total_consumption_per_day[0] += consumption[0]
+            total_consumption_per_day[1] += consumption[1]
+            total_consumption_per_day[2] += consumption[2]
+            total_production_per_day[0] += production[0]
+            total_production_per_day[1] += production[1]
+            total_production_per_day[2] += production[2]
+
                 
 
 if __name__ == "__main__":
