@@ -45,15 +45,15 @@ def finnish_day_name(english_day_name: str) -> str:
     }
     return days.get(english_day_name, english_day_name)
 
-def consumption_per_hour(meter_data: list) -> list:
-    """Calculates consumption for every phase per hour, and returns a list of floats."""    
+def consumption_per_hour(meter_data: list) -> list[float]:
+    """Reads consumption for every phase per hour, and returns a list of floats."""    
     consumption_p1 = meter_data[1]
     consumption_p2 = meter_data[2]
     consumption_p3 = meter_data[3]
     return [consumption_p1, consumption_p2, consumption_p3]
 
-def production_per_hour(meter_data: list) -> list:
-    """Calculates production for every phase per hour, and returns a list of floats."""
+def production_per_hour(meter_data: list) -> list[float]:
+    """Reads production for every phase per hour, and returns a list of floats."""
     production_p1 = meter_data[4]
     production_p2 = meter_data[5]
     production_p3 = meter_data[6]
@@ -74,6 +74,7 @@ def main() -> None:
     currentDate = meter_data[0][0].date()
     lastline = meter_data[-1]
     for line in meter_data:
+        """Iterate through meter data - calculate and print daily totals."""
         finnish_day = finnish_day_name(currentDate.strftime("%A"))
         date_str = currentDate.strftime("%d.%m.%Y")
         if line is lastline:
@@ -83,7 +84,7 @@ def main() -> None:
             production_per_day[0] += production_per_hour(line)[0]
             production_per_day[1] += production_per_hour(line)[1]
             production_per_day[2] += production_per_hour(line)[2]
-            print(f"{finnish_day}\t{date_str}\t{consumption_per_day[0]:.2f}\t{consumption_per_day[1]:.2f}\t{consumption_per_day[2]:.2f}\t\t{production_per_day[0]:.2f}\t{production_per_day[1]:.2f}\t{production_per_day[2]:.2f}")
+            print(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
         elif line[0].date() == currentDate:
             consumption_per_day[0] += consumption_per_hour(line)[0]
             consumption_per_day[1] += consumption_per_hour(line)[1]
@@ -92,16 +93,15 @@ def main() -> None:
             production_per_day[1] += production_per_hour(line)[1]
             production_per_day[2] += production_per_hour(line)[2]
         elif finnish_day == "Tiistai" or finnish_day == "Torstai":
-            print(f"{finnish_day}\t\t{date_str}\t{consumption_per_day[0]:.2f}\t{consumption_per_day[1]:.2f}\t{consumption_per_day[2]:.2f}\t\t{production_per_day[0]:.2f}\t{production_per_day[1]:.2f}\t{production_per_day[2]:.2f}")
+            print(finnish_day + "\t\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
             currentDate = line[0].date() 
             consumption_per_day = [0.0, 0.0, 0.0]
             production_per_day = [0.0, 0.0, 0.0]
         else:
-            print(f"{finnish_day}\t{date_str}\t{consumption_per_day[0]:.2f}\t{consumption_per_day[1]:.2f}\t{consumption_per_day[2]:.2f}\t\t{production_per_day[0]:.2f}\t{production_per_day[1]:.2f}\t{production_per_day[2]:.2f}")
+            print(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
             currentDate = line[0].date() 
             consumption_per_day = [0.0, 0.0, 0.0]
             production_per_day = [0.0, 0.0, 0.0]
             
-
 if __name__ == "__main__":
     main()
