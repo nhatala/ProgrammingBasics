@@ -45,14 +45,14 @@ def finnish_day_name(english_day_name: str) -> str:
     }
     return days.get(english_day_name, english_day_name)
 
-def consumption_per_hour(meter_data: list) -> list[float]:
+def consumption_per_hour(meter_data: list[float]) -> list[float]:
     """Reads consumption for every phase per hour, and returns a list of floats."""    
     consumption_p1 = meter_data[1]
     consumption_p2 = meter_data[2]
     consumption_p3 = meter_data[3]
     return [consumption_p1, consumption_p2, consumption_p3]
 
-def production_per_hour(meter_data: list) -> list[float]:
+def production_per_hour(meter_data: list[float]) -> list[float]:
     """Reads production for every phase per hour, and returns a list of floats."""
     production_p1 = meter_data[4]
     production_p2 = meter_data[5]
