@@ -94,6 +94,7 @@ def write_new_report(weekly_data: str, report_file: str) -> None:
 
 def add_to_report(weekly_data: str, report_file: str) -> None:
     """Adds weekly data to report file.""" 
+
     try:
         with open(report_file, "x", encoding="utf-8") as file:
             daily_consumption_and_production(weekly_data, report_file)
@@ -118,6 +119,13 @@ def delete_report(report_file: str) -> None:
         print("Raporttitiedosto poistettu.")
     else:
         print("Raporttitiedostoa ei löydy.")
+
+def confirmation_prompt() -> bool:
+    """Asks for user confirmation to proceed."""
+    confirmation = input("Haluatko varmasti jatkaa? (k/e): ")
+    if confirmation != "k":
+        return False
+    return True
 
 def daily_consumption_and_production(meter_datafile: list, report_file: str) -> None:
     """Writes daily consumption and production data to file."""
@@ -165,21 +173,8 @@ def daily_consumption_and_production(meter_datafile: list, report_file: str) -> 
         consumption_per_day = [0.0, 0.0, 0.0]
         production_per_day = [0.0, 0.0, 0.0]
 
-def main():
+def main() -> None:
     """Main function to execute the report generation."""
-
-    """"
-    print()
-    print("----- Raportointiohjelma -----")
-    print("*Valinnat tarkistavat olemassaolevan tiedoston ja luovat uuden tiedoston tarvittaessa*")
-    print("------------------------------")
-    print("1 - Lisää halutun viikon tiedot nykyiseen tiedostoon")
-    print("2 - Tyhjennä ja lisää halutun viikon tiedot uuteen tiedostoon")
-    print("3 - Luo uusi raportti kaikkien viikkojen tiedoista")
-    print("4 - Näytä nykyisen raporttitiedoston tiedot")
-    print("5 - Poista raporttitiedosto")
-    print("9 - Lopeta ohjelma")
-    print()"""
 
     main_menu()
     report_file_name = input("Syötä käsiteltävän raporttitiedoston nimi tai jätä tyhjäksi (oletus: yhteenveto.txt): ")
@@ -204,7 +199,11 @@ def main():
             main()
         elif input_value == 2:
             weekly_data = input("Anna lisättävän viikon tiedostonimi (muodossa viikkoXX): ")
-            if Path("Viikko5B/" + weekly_data + ".csv").is_file():
+            if confirmation_prompt() == False:
+                print("Tyhjennys- ja lisäystoiminto peruutettu.")
+                input_value = 0
+                main()
+            elif Path("Viikko5B/" + weekly_data + ".csv").is_file():
                 weekly_data = weekly_data + ".csv"
                 weekly_data = read_meter_data(weekly_data)
                 erase_report(report_file_name)
@@ -216,6 +215,10 @@ def main():
             input_value = 0
             main()
         elif input_value == 3:
+            if confirmation_prompt() == False:
+                print("Uuden raportin luonti peruutettu.")
+                input_value = 0
+                main()
             for week in range(1, 53):
                 week_str = str(week).zfill(2)
                 weekly_file = "Viikko5B/viikko" + week_str + ".csv"
@@ -235,9 +238,14 @@ def main():
             input_value = 0
             main()
         elif input_value == 5:
-            delete_report(report_file_name)
-            input_value = 0
-            main()
+            if confirmation_prompt() == False:
+                print("Poistotoiminto peruutettu.")
+                input_value = 0
+                main()
+            else:
+                delete_report(report_file_name)
+                input_value = 0
+                main()
         
     if __name__ == "__main__":
         main()
