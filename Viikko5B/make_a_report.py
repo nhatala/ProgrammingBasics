@@ -2,6 +2,7 @@
 # License: MIT
 
 from datetime import date, datetime
+import sys
 from typing import List, Dict
 from pathlib import Path
 
@@ -75,177 +76,309 @@ def main_menu():
     print("4 - Näytä nykyisen raporttitiedoston tiedot")
     print("5 - Poista raporttitiedosto")
     print("9 - Lopeta ohjelma")
-    print()
-
-def write_new_report(weekly_data: str, report_file: str) -> None:
-    """Adds weekly data to report file."""
-    if Path(weekly_data + ".csv").is_file():
-        weekly_data = weekly_data + ".csv"
-        weekly_data = read_meter_data(weekly_data)
-        try:
-            with open(report_file, "x", encoding="utf-8") as file:
-                daily_consumption_and_production(weekly_data, report_file)
-        except FileExistsError:
-            print("Raporttitiedosto on jo olemassa, kirjoitetaan päälle.")
-            with open(report_file, "w", encoding="utf-8") as file:
-                daily_consumption_and_production(weekly_data, report_file)
-    else:                       
-        print("Viikon datatiedostoa ei löydy.")    
-
-def add_to_report(weekly_data: str, report_file: str) -> None:
-    """Adds weekly data to report file.""" 
-
-    try:
-        with open(report_file, "x", encoding="utf-8") as file:
-            daily_consumption_and_production(weekly_data, report_file)
-    except FileExistsError:
-        print("Raporttitiedosto on jo olemassa, kirjoitetaan päälle.")
-        with open(report_file, "a", encoding="utf-8") as file:
-            daily_consumption_and_production(weekly_data, report_file)
 
 def erase_report(report_file: str) -> None:
     """Erases the report file if it exists."""
-    if Path("Viikko5B/" + report_file).is_file():
-        with open(report_file, "w", encoding="utf-8") as file:
+    if Path(report_file).is_file():
+        with open(Path(report_file), "w", encoding="utf-8") as file:
             file.write("")
-            print("Raporttitiedosto tyhjennetty.")
+            print("\n**Raporttitiedosto tyhjennetty.**")
     else:
-        print("Raporttitiedostoa ei löydy.")
+        print("\n**Raporttitiedostoa ei löydy.**")
 
 def delete_report(report_file: str) -> None:
     """Deletes the report file if it exists."""
-    if Path("Viikko5B/" + report_file).is_file():
-        Path("Viikko5B/" + report_file).unlink()
-        print("Raporttitiedosto poistettu.")
+    if Path(report_file).is_file():
+        Path(report_file).unlink()
+        print("\n**Raporttitiedosto poistettu.**")
     else:
-        print("Raporttitiedostoa ei löydy.")
+        print("\n**Raporttitiedostoa ei löydy.**")
 
 def confirmation_prompt() -> bool:
     """Asks for user confirmation to proceed."""
-    confirmation = input("Haluatko varmasti jatkaa? (k/e): ")
+    confirmation = input("\nHaluatko varmasti jatkaa? (k/e): ")
     if confirmation != "k":
         return False
     return True
 
-def daily_consumption_and_production(meter_datafile: list, report_file: str) -> None:
-    """Writes daily consumption and production data to file."""
-    report_file.write("Luonti/muokkauspäivä: " + finnish_date(date.today()) + "\n")
-    report_file.write("\n")
-    report_file.write("Viikon" + "(" + Path(meter_datafile).name + ") sähkönkulutus ja -tuotanto (kWh, vaiheittain)")
-    report_file.write("\n")
-    report_file.write("Päivä\t\tPvm\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
-    report_file.write("\n")
-    report_file.write("\t\t(pp.kk.vvvv)\tv1\tv2\tv3\t\tv1\tv2\tv3")
-    report_file.write("\n")
-    report_file.write("-----------------------------------------------------------------------------------")
-    report_file.write("\n")        
-    consumption_per_day = [0.0, 0.0, 0.0]
-    production_per_day = [0.0, 0.0, 0.0]
-    currentDate = meter_datafile[0][0].date()
-    lastline = meter_datafile[-1]
-    for line in meter_datafile:
-        """Iterate through meter data - calculate and write daily totals on report."""
-    finnish_day = finnish_day_name(currentDate.strftime("%A"))
-    date_str = currentDate.strftime("%d.%m.%Y")
-    if line is lastline:
-        consumption_per_day[0] += consumption_per_hour(line)[0]
-        consumption_per_day[1] += consumption_per_hour(line)[1]
-        consumption_per_day[2] += consumption_per_hour(line)[2]
-        production_per_day[0] += production_per_hour(line)[0]
-        production_per_day[1] += production_per_hour(line)[1]
-        production_per_day[2] += production_per_hour(line)[2]
-        report_file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
-    elif line[0].date() == currentDate:
-        consumption_per_day[0] += consumption_per_hour(line)[0]
-        consumption_per_day[1] += consumption_per_hour(line)[1]
-        consumption_per_day[2] += consumption_per_hour(line)[2]
-        production_per_day[0] += production_per_hour(line)[0]
-        production_per_day[1] += production_per_hour(line)[1]
-        production_per_day[2] += production_per_hour(line)[2]
-    elif finnish_day == "Tiistai" or finnish_day == "Torstai":
-        report_file.write(finnish_day + "\t\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
-        currentDate = line[0].date() 
-        consumption_per_day = [0.0, 0.0, 0.0]
-        production_per_day = [0.0, 0.0, 0.0]
-    else:
-        report_file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
-        currentDate = line[0].date() 
-        consumption_per_day = [0.0, 0.0, 0.0]
-        production_per_day = [0.0, 0.0, 0.0]
+def write_new_report(weekly_data: str, report_file: str) -> None:
+    """Adds weekly data to report file."""
+    weekly_data = read_meter_data(weekly_data)
+    try:
+        with open(Path(report_file), "x", encoding="utf-8") as file:
+            file.write("Raportin luonti-/muokkauspäivä: " + finnish_date(date.today()) + "\n")
+            file.write("\n")
+            file.write("Viikon sähkönkulutus ja -tuotanto (kWh, vaiheittain)\n")
+            file.write("Päivä\t\tPvm\t\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
+            file.write("\n")
+            file.write("\t\t\t(pp.kk.vvvv)\tv1\tv2\tv3\t\tv1\tv2\tv3")
+            file.write("\n")
+            file.write("-----------------------------------------------------------------------------------")
+            file.write("\n")        
+            consumption_per_day = [0.0, 0.0, 0.0]
+            production_per_day = [0.0, 0.0, 0.0]
+            currentDate = weekly_data[0][0].date()
+            lastline = weekly_data[-1]
+            for line in weekly_data:
+                """Iterate through meter data - calculate and write daily totals on report."""
+                finnish_day = finnish_day_name(currentDate.strftime("%A"))
+                date_str = currentDate.strftime("%d.%m.%Y")
+                if line is lastline:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
+                elif line[0].date() == currentDate:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                elif finnish_day == "Tiistai" or finnish_day == "Torstai":
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
+                else:
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ','))
+                    production_per_day = [0.0, 0.0, 0.0]
+    except FileExistsError:
+        print("\n**Raporttitiedosto on jo olemassa, kirjoitetaan päälle.**")
+        with open(Path(report_file), "w", encoding="utf-8") as file:
+            file.write("Raportin luonti-/muokkauspäivä: " + finnish_date(date.today()) + "\n")
+            file.write("\n")
+            file.write("Viikon sähkönkulutus ja -tuotanto (kWh, vaiheittain)\n")
+            file.write("Päivä\t\tPvm\t\t\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
+            file.write("\n")
+            file.write("\t\t\t(pp.kk.vvvv)\tv1\t\tv2\t\tv3\t\tv1\tv2\tv3")
+            file.write("\n")
+            file.write("-----------------------------------------------------------------------------------")
+            file.write("\n")        
+            consumption_per_day = [0.0, 0.0, 0.0]
+            production_per_day = [0.0, 0.0, 0.0]
+            currentDate = weekly_data[0][0].date()
+            lastline = weekly_data[-1]
+            for line in weekly_data:
+                """Iterate through meter data - calculate and write daily totals on report."""
+                finnish_day = finnish_day_name(currentDate.strftime("%A"))
+                date_str = currentDate.strftime("%d.%m.%Y")
+                if line is lastline:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                    file.write(finnish_day + "\t" + date_str + "\t\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                elif line[0].date() == currentDate:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                elif finnish_day == "Tiistai" or finnish_day == "Torstai":
+                    file.write(finnish_day + "\t\t" + date_str + "\t\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
+                else:
+                    file.write(finnish_day + "\t" + date_str + "\t\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
 
-def main() -> None:
+def add_to_report(weekly_data: str, report_file: str) -> None:
+    """Writes daily consumption and production data to file."""
+    weekly_data = read_meter_data(weekly_data)
+    try:
+        with open(Path(report_file), "x", encoding="utf-8") as file:
+            file.write("Luonti/muokkauspäivä: " + finnish_date(date.today()))
+            file.write("\n")
+            file.write("Viikon sähkönkulutus ja -tuotanto (kWh, vaiheittain)")
+            file.write("\n")
+            file.write("Päivä\t\tPvm\t\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
+            file.write("\n")
+            file.write("\t\t\t(pp.kk.vvvv)\tv1\tv2\tv3\t\tv1\tv2\tv3")
+            file.write("\n")
+            file.write("-----------------------------------------------------------------------------------")
+            file.write("\n")        
+            consumption_per_day = [0.0, 0.0, 0.0]
+            production_per_day = [0.0, 0.0, 0.0]
+            currentDate = weekly_data[0][0].date()
+            lastline = weekly_data[-1]
+            for line in weekly_data:
+                """Iterate through meter data - calculate and write daily totals on report."""
+                finnish_day = finnish_day_name(currentDate.strftime("%A"))
+                date_str = currentDate.strftime("%d.%m.%Y")
+                if line is lastline:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                elif line[0].date() == currentDate:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                elif finnish_day == "Tiistai" or finnish_day == "Torstai":
+                    file.write(finnish_day + "\t\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
+                else:
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
+    except FileExistsError:
+        print("\n**Raporttitiedosto on jo olemassa, lisätään tiedot.**")
+        with open(Path(report_file), "a", encoding="utf-8") as file:
+            file.write("Luonti/muokkauspäivä: " + finnish_date(date.today()) + "\n")
+            file.write("\n")
+            file.write("Viikon sähkönkulutus ja -tuotanto (kWh, vaiheittain)")
+            file.write("\n")
+            file.write("Päivä\t\tPvm\t\t\tKulutus [kWh]\t\t\tTuotanto [kWh]")
+            file.write("\n")
+            file.write("\t\t\t(pp.kk.vvvv)\tv1\tv2\tv3\t\tv1\tv2\tv3")
+            file.write("\n")
+            file.write("-----------------------------------------------------------------------------------")
+            file.write("\n")        
+            consumption_per_day = [0.0, 0.0, 0.0]
+            production_per_day = [0.0, 0.0, 0.0]
+            currentDate = weekly_data[0][0].date()
+            lastline = weekly_data[-1]
+            for line in weekly_data:
+                """Iterate through meter data - calculate and write daily totals on report."""
+                finnish_day = finnish_day_name(currentDate.strftime("%A"))
+                date_str = currentDate.strftime("%d.%m.%Y")
+                if line is lastline:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                elif line[0].date() == currentDate:
+                    consumption_per_day[0] += consumption_per_hour(line)[0]
+                    consumption_per_day[1] += consumption_per_hour(line)[1]
+                    consumption_per_day[2] += consumption_per_hour(line)[2]
+                    production_per_day[0] += production_per_hour(line)[0]
+                    production_per_day[1] += production_per_hour(line)[1]
+                    production_per_day[2] += production_per_hour(line)[2]
+                elif finnish_day == "Tiistai" or finnish_day == "Torstai":
+                    file.write(finnish_day + "\t\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
+                else:
+                    file.write(finnish_day + "\t" + date_str + "\t" + str(round(consumption_per_day[0], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[1], 2)).replace('.', ',') + "\t" + str(round(consumption_per_day[2], 2)).replace('.', ',') + "\t\t" + str(round(production_per_day[0], 2)).replace('.', ',') + "\t" + str(round(production_per_day[1], 2)).replace('.', ',') + "\t" + str(round(production_per_day[2], 2)).replace('.', ',') + "\n")
+                    currentDate = line[0].date() 
+                    consumption_per_day = [0.0, 0.0, 0.0]
+                    production_per_day = [0.0, 0.0, 0.0]
+
+def main():
     """Main function to execute the report generation."""
 
     main_menu()
-    report_file_name = input("Syötä käsiteltävän raporttitiedoston nimi tai jätä tyhjäksi (oletus: yhteenveto.txt): ")
-    if not report_file_name:
-        report_file_name = "yhteenveto.txt"
-    input_value = int(input("Valitse toiminto syöttämällä numero: "))
-    print()
-    while input_value != 0:
-        if input_value == 9:
-            print("Ohjelma lopetettu.")
-            break
-        elif input_value == 1:
-            weekly_data = input("Anna lisättävän viikon tiedostonimi (muodossa viikkoXX): ")
-            if Path("Viikko5B/" + weekly_data + ".csv").is_file():
-                weekly_data = weekly_data + ".csv"
-                weekly_data = read_meter_data(weekly_data)
-                add_to_report(weekly_data)
-                print("Viikon tiedot lisätty raporttiin.")
-            else:
-                print("Viikon datatiedostoa ei löydy.")
-            input_value = 0
-            main()
-        elif input_value == 2:
-            weekly_data = input("Anna lisättävän viikon tiedostonimi (muodossa viikkoXX): ")
-            if confirmation_prompt() == False:
-                print("Tyhjennys- ja lisäystoiminto peruutettu.")
-                input_value = 0
-                main()
-            elif Path("Viikko5B/" + weekly_data + ".csv").is_file():
-                weekly_data = weekly_data + ".csv"
-                weekly_data = read_meter_data(weekly_data)
-                erase_report(report_file_name)
-                add_to_report(weekly_data)
-                print("Viikon tiedot lisätty raporttiin.")
-            else:
-                print("Viikon datatiedostoa ei löydy.")
-            write_new_report(weekly_data, report_file_name)
-            input_value = 0
-            main()
-        elif input_value == 3:
-            if confirmation_prompt() == False:
-                print("Uuden raportin luonti peruutettu.")
-                input_value = 0
-                main()
-            for week in range(1, 53):
-                week_str = str(week).zfill(2)
-                weekly_file = "Viikko5B/viikko" + week_str + ".csv"
-                if Path(weekly_file).is_file():
-                    add_to_report("Viikko5B/viikko" + week_str + ".csv", report_file_name)
-                else:
-                    continue
-            print("Uusi raportti luotu kaikista viikoista (Tyhjät viikot ohitettu.")
-            input_value = 0
-            main()
-        elif input_value == 4:
-            if Path("Viikko5B/" + report_file_name).is_file():
-                with open("Viikko5B/" + report_file_name, "r", encoding="utf-8") as file:
-                    print(file.read())
-            else:
-                print("Raporttitiedostoa ei löydy.")
-            input_value = 0
-            main()
-        elif input_value == 5:
-            if confirmation_prompt() == False:
-                print("Poistotoiminto peruutettu.")
-                input_value = 0
-                main()
-            else:
-                delete_report(report_file_name)
-                input_value = 0
-                main()
-        
-    if __name__ == "__main__":
+    report_file_name = input("\nSyötä käsiteltävän raporttitiedoston nimi tai jätä tyhjäksi (oletus: yhteenveto.txt) - lopeta syöttämällä 9: ")
+    if report_file_name == "9":
+        print("\n**Ohjelma lopetettu.**\n")
+        sys.exit()
+    elif report_file_name.endswith(".txt") == False and report_file_name != "":
+        print("\n**Raporttitiedoston nimen tulee päättyä .txt**\n")
         main()
+    else:
+        if not report_file_name:
+            report_file_name = "yhteenveto.txt"
+    input_value = input("\nValitse toiminto syöttämällä numero: ")
+    if input_value in ["1", "2", "3", "4", "5", "9"]:
+        input_value = int(input_value)
+        while input_value != 0:
+            if input_value == 9:
+                print("\n**Ohjelma lopetettu.**\n")
+                input_value = 0
+                sys.exit()
+            elif input_value == 1:
+                weekly_data = input("\nAnna lisättävän viikon tiedostonimi (muodossa viikkoXX) - lopeta syöttämällä 9: ")
+                if weekly_data == "9":
+                    print("\n**Toiminto peruutettu.**\n")
+                    input_value = 0
+                    sys.exit()
+                elif Path(weekly_data + ".csv").is_file():
+                    weekly_data = weekly_data + ".csv"
+                    add_to_report(weekly_data, report_file_name)
+                    print("\n**Viikon tiedot lisätty raporttiin.**\n")
+                else:
+                    print("\n**Viikon datatiedostoa ei löydy.**")
+                input_value = 0
+                sys.exit()
+            elif input_value == 2:
+                weekly_data = input("\nAnna halutun viikon tiedostonimi (muodossa viikkoXX) - lopeta syöttämällä 9: ")
+                if weekly_data == "9": 
+                    print("\n**Toiminto peruutettu.**\n")
+                    input_value = 0
+                    sys.exit()
+                elif confirmation_prompt() == False:
+                    print("\n**Toiminto peruutettu.**\n")
+                    input_value = 0
+                    sys.exit()
+                elif Path(weekly_data + ".csv").is_file():
+                    weekly_data = weekly_data + ".csv"
+                    write_new_report(weekly_data, report_file_name)
+                    print("\n**Viikon tiedot lisätty raporttiin.**\n")
+                else:
+                    print("\n**Viikon datatiedostoa ei löydy.**\n")
+                input_value = 0
+                sys.exit()
+            elif input_value == 3:
+                if confirmation_prompt() == False:
+                    print("\n**Uuden raportin luonti peruutettu.**\n")
+                    input_value = 0
+                    sys.exit()
+                else:
+                    erase_report(report_file_name)
+                    for week in range(1, 53):
+                        week_str = str(week).zfill(2)
+                        weekly_file = "viikko" + week_str + ".csv"
+                        if Path(weekly_file).is_file():
+                            add_to_report("viikko" + week_str + ".csv", report_file_name)
+                        else:
+                            pass
+                print("\n**Uusi raportti luotu kaikista viikoista (Tyhjät viikot ohitettu).**\n")
+                input_value = 0
+                sys.exit()
+            elif input_value == 4:
+                if Path(report_file_name).is_file():
+                    with open(Path(report_file_name), "r", encoding="utf-8") as file:
+                        print(file.read())
+                else:
+                    print("\n**Raporttitiedostoa ei löydy.**\n")
+                input_value = 0
+                sys.exit()
+            elif input_value == 5:
+                if confirmation_prompt() == False:
+                    print("\n**Poistotoiminto peruutettu.**\n")
+                    input_value = 0
+                    sys.exit()
+                else:
+                    delete_report(report_file_name)
+                    input_value = 0
+                    sys.exit()
+    else:
+        print("\n**Virheellinen valinta, yritä uudelleen.**\n")
+        input_value = 0
+        sys.exit()
+
+if __name__ == "__main__":
+    main()
