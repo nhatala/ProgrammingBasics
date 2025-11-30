@@ -4,7 +4,7 @@
 Raportin luonti-/muokkauspäivä: 30.11.2025
 
 Viikon 41 sähkönkulutus ja -tuotanto (kWh, vaiheittain)
-Päivä		Pvm				Kulutus [kWh]			Tuotanto [kWh]
+Päivä		Pvm				Kulutus [kWh]				Tuotanto [kWh]
 			(pp.kk.vvvv)	v1		v2		v3			v1		v2		v3
 -----------------------------------------------------------------------------------
 Maanantai	06.10.2025		9,85	4,10	2,74		0,16	0,36	0,81
@@ -20,7 +20,7 @@ Sunnuntai	12.10.2025		10,51	1,35	1,74		0,26	0,96	0,95
 Raportin luonti-/muokkauspäivä: 30.11.2025
 
 Viikon 42 sähkönkulutus ja -tuotanto (kWh, vaiheittain)
-Päivä		Pvm				Kulutus [kWh]			Tuotanto [kWh]
+Päivä		Pvm				Kulutus [kWh]				Tuotanto [kWh]
 			(pp.kk.vvvv)	v1		v2		v3			v1		v2		v3
 -----------------------------------------------------------------------------------
 Maanantai	13.10.2025		11,88	1,57	2,36		0,01	0,39	0,52
@@ -36,7 +36,7 @@ Sunnuntai	19.10.2025		12,06	6,85	4,48		0,94	0,94	3,50
 Raportin luonti-/muokkauspäivä: 30.11.2025
 
 Viikon 43 sähkönkulutus ja -tuotanto (kWh, vaiheittain)
-Päivä		Pvm				Kulutus [kWh]			Tuotanto [kWh]
+Päivä		Pvm				Kulutus [kWh]				Tuotanto [kWh]
 			(pp.kk.vvvv)	v1		v2		v3			v1		v2		v3
 -----------------------------------------------------------------------------------
 Maanantai	20.10.2025		15,01	11,85	3,33		0,02	0,07	1,19

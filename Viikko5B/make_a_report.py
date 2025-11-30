@@ -150,7 +150,7 @@ def write_new_report(weekly_data: str, report_file: str) -> None:
                     consumption_per_day = [0.0, 0.0, 0.0]
                     production_per_day = [0.0, 0.0, 0.0]
     except FileExistsError:
-        print("\n**Raporttitiedosto on jo olemassa, kirjoitetaan päälle.**")
+        print("\n**Raporttitiedosto on jo olemassa, tyhjennetään ja lisätään viikon " + str(week_num) + " tiedot.**")
         with open(Path(report_file), "w", encoding="utf-8") as file:
             file.write("\n\n\nRaportin luonti-/muokkauspäivä: " + finnish_date(date.today()) + "\n")
             file.write("\n")
@@ -244,7 +244,7 @@ def add_to_report(weekly_data: str, report_file: str) -> None:
                     consumption_per_day = [0.0, 0.0, 0.0]
                     production_per_day = [0.0, 0.0, 0.0]
     except FileExistsError:
-        print("\n**Raporttitiedosto on jo olemassa, lisätään tiedot.**")
+        print("\n**Raporttitiedosto on jo olemassa, lisätään viikon " + str(week_num) + " tiedot.**")
         with open(Path(report_file), "a", encoding="utf-8") as file:
             file.write("\n\n\nRaportin luonti-/muokkauspäivä: " + finnish_date(date.today()) + "\n")
             file.write("\n")
