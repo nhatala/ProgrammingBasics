@@ -102,7 +102,7 @@ def confirmation_prompt(raportti: str) -> bool:
     return True
 
 def write_new_report(weekly_data: str, report_file: str) -> None:
-    """Adds weekly data to report file."""
+    """Adds weekly data to a clean report file."""
     weekly_data = read_meter_data(weekly_data)
     week_num = weekly_data[0][0].isocalendar()[1]
     try:
@@ -196,7 +196,7 @@ def write_new_report(weekly_data: str, report_file: str) -> None:
                     production_per_day = [0.0, 0.0, 0.0]
 
 def add_to_report(weekly_data: str, report_file: str) -> None:
-    """Writes daily consumption and production data to file."""
+    """Adds weekly data to a existing report file."""
     weekly_data = read_meter_data(weekly_data)
     week_num = weekly_data[0][0].isocalendar()[1]
     try:
@@ -293,6 +293,7 @@ def main():
     """Main function to execute the report generation."""
 
     main_menu()
+    """Asks for report file name and user input for desired action."""
     report_file_name = input("\nSyötä käsiteltävän raporttitiedoston nimi tai jätä tyhjäksi (oletus: yhteenveto.txt) - lopeta syöttämällä 9: ")
     if report_file_name == "9":
         print("\n**Ohjelma lopetettu.**\n")
