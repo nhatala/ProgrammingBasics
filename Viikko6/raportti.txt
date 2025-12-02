@@ -1,0 +1,9 @@
+
+Raportti kuukaudelta elokuu:
+----------------------------------------------
+Kokonaiskulutus: 219.41 kWh
+Kokonaistuotanto: 508.02 kWh
+Keskilämpötila: 15.08 °C
+Nettokuorma: 288.61 kWh
+Korkein kulutus: 2.69 kWh / 16.08.2025 / keskilämpötila: 12.5 °C
+Matalin kulutus: 0.0 kWh / 01.08.2025 / keskilämpötila: 21.5 °C
