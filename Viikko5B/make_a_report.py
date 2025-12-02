@@ -292,8 +292,7 @@ def add_to_report(weekly_data: str, report_file: str) -> None:
 def main():
     """Main function to execute the report generation."""
 
-    main_menu()
-    """Asks for report file name and user input for desired action."""
+    """Asks for report file name"""
     report_file_name = input("\nSyötä käsiteltävän raporttitiedoston nimi tai jätä tyhjäksi (oletus: yhteenveto.txt) - lopeta syöttämällä 9: ")
     if report_file_name == "9":
         print("\n**Ohjelma lopetettu.**\n")
@@ -304,84 +303,74 @@ def main():
     else:
         if not report_file_name:
             report_file_name = "yhteenveto.txt"
-    input_value = input("\nValitse toiminto syöttämällä numero: ")
-    if input_value in ["1", "2", "3", "4", "5", "9"]:
-        input_value = int(input_value)
-        while input_value != 0:
-            if input_value == 9:
-                print("\n**Ohjelma lopetettu.**\n")
-                input_value = 0
-                sys.exit()
-            elif input_value == 1:
-                weekly_data = input("\nAnna lisättävän viikon tiedostonimi (muodossa viikkoXX) - lopeta syöttämällä 9: ")
-                if weekly_data == "9":
-                    print("\n**Toiminto peruutettu.**\n")
-                    input_value = 0
+        main_menu()
+        input_value = input("\nValitse toiminto syöttämällä numero: ")
+        if input_value in ["1", "2", "3", "4", "5", "9"]:
+            input_value = int(input_value)
+            while True:
+                if input_value == 9:
+                    print("\n**Ohjelma lopetettu.**\n")
                     sys.exit()
-                elif Path(weekly_data + ".csv").is_file():
-                    weekly_data = weekly_data + ".csv"
-                    add_to_report(weekly_data, report_file_name)
-                    print("\n**Viikon tiedot lisätty raporttiin.**\n")
-                else:
-                    print("\n**Viikon datatiedostoa ei löydy.**")
-                input_value = 0
-                sys.exit()
-            elif input_value == 2:
-                weekly_data = input("\nAnna halutun viikon tiedostonimi (muodossa viikkoXX) - lopeta syöttämällä 9: ")
-                if weekly_data == "9": 
-                    print("\n**Toiminto peruutettu.**\n")
-                    input_value = 0
-                    sys.exit()
-                elif confirmation_prompt(report_file_name) == False:
-                    print("\n**Toiminto peruutettu.**\n")
-                    input_value = 0
-                    sys.exit()
-                elif Path(weekly_data + ".csv").is_file():
-                    weekly_data = weekly_data + ".csv"
-                    write_new_report(weekly_data, report_file_name)
-                    print("\n**Viikon tiedot lisätty raporttiin.**\n")
-                else:
-                    print("\n**Viikon datatiedostoa ei löydy.**\n")
-                input_value = 0
-                sys.exit()
-            elif input_value == 3:
-                if confirmation_prompt(report_file_name) == False:
-                    print("\n**Uuden raportin luonti peruutettu.**\n")
-                    input_value = 0
-                    sys.exit()
-                else:
-                    erase_report(report_file_name)
-                    for week in range(1, 53):
-                        week_str = str(week).zfill(2)
-                        weekly_file = "viikko" + week_str + ".csv"
-                        if Path(weekly_file).is_file():
-                            add_to_report("viikko" + week_str + ".csv", report_file_name)
-                        else:
-                            pass
-                print("\n**Uusi raportti luotu kaikista viikoista (Tyhjät viikot ohitettu).**\n")
-                input_value = 0
-                sys.exit()
-            elif input_value == 4:
-                if Path(report_file_name).is_file():
-                    with open(Path(report_file_name), "r", encoding="utf-8") as file:
-                        print(file.read())
-                else:
-                    print("\n**Raporttitiedostoa ei löydy.**\n")
-                input_value = 0
-                sys.exit()
-            elif input_value == 5:
-                if confirmation_prompt(report_file_name) == False:
-                    print("\n**Poistotoiminto peruutettu.**\n")
-                    input_value = 0
-                    sys.exit()
-                else:
-                    delete_report(report_file_name)
-                    input_value = 0
-                    sys.exit()
-    else:
-        print("\n**Virheellinen valinta, yritä uudelleen.**\n")
-        input_value = 0
-        sys.exit()
+                elif input_value == 1:
+                    weekly_data = input("\nAnna lisättävän viikon tiedostonimi (muodossa viikkoXX) - lopeta syöttämällä 9: ")
+                    if weekly_data == "9":
+                        print("\n**Toiminto peruutettu.**\n")
+                        main()
+                    elif Path(weekly_data + ".csv").is_file():
+                        weekly_data = weekly_data + ".csv"
+                        add_to_report(weekly_data, report_file_name)
+                        print("\n**Viikon tiedot lisätty raporttiin.**\n")
+                        main()
+                    else:
+                        print("\n**Viikon datatiedostoa ei löydy.**")
+                        main()
+                elif input_value == 2:
+                    weekly_data = input("\nAnna halutun viikon tiedostonimi (muodossa viikkoXX) - lopeta syöttämällä 9: ")
+                    if weekly_data == "9": 
+                        print("\n**Toiminto peruutettu.**\n")
+                        main()
+                    elif confirmation_prompt(report_file_name) == False:
+                        print("\n**Toiminto peruutettu.**\n")
+                        main()
+                    elif Path(weekly_data + ".csv").is_file():
+                        weekly_data = weekly_data + ".csv"
+                        write_new_report(weekly_data, report_file_name)
+                        print("\n**Viikon tiedot lisätty raporttiin.**\n")
+                    else:
+                        print("\n**Viikon datatiedostoa ei löydy.**\n")
+                        main()
+                elif input_value == 3:
+                    if confirmation_prompt(report_file_name) == False:
+                        print("\n**Uuden raportin luonti peruutettu.**\n")
+                        main()
+                    else:
+                        erase_report(report_file_name)
+                        for week in range(1, 53):
+                            week_str = str(week).zfill(2)
+                            weekly_file = "viikko" + week_str + ".csv"
+                            if Path(weekly_file).is_file():
+                                add_to_report("viikko" + week_str + ".csv", report_file_name)
+                            else:
+                                pass
+                    print("\n**Uusi raportti luotu kaikista viikoista (Tyhjät viikot ohitettu).**\n")
+                    main()
+                elif input_value == 4:
+                    if Path(report_file_name).is_file():
+                        with open(Path(report_file_name), "r", encoding="utf-8") as file:
+                            print(file.read())
+                    else:
+                        print("\n**Raporttitiedostoa ei löydy.**\n")
+                    main()
+                elif input_value == 5:
+                    if confirmation_prompt(report_file_name) == False:
+                        print("\n**Poistotoiminto peruutettu.**\n")
+                        main()       
+                    else:
+                        delete_report(report_file_name)
+                        main()
+        else:
+            print("\n**Virheellinen valinta, yritä uudelleen.**\n")
+            main()
 
 if __name__ == "__main__":
     main()
