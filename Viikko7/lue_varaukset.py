@@ -6,90 +6,121 @@
 #
 # See LICENSE file in the project root for full license information.
 
+
+# Käytin olioita, koska ne helpottavat datan käsittelyä ja tarjoavat selkeän rakenteen varauksille.
+# En koe että sanakirjatkaan sen huonompia tässä varsinaisesti olisi, mutta halusin harjoitella olioiden käyttöä tulevaisuutta varten.
+# On todella paljon helpommin luettavaa ilman listoja, koska kaikilla varauksen osilla on selkeät nimet.
+# Myös kaikki funktiot ja metodit ovat selkeitä ja helposti ymmärrettäviä.
+
 from datetime import datetime
 
-def muunna_varaustiedot(varaus: list) -> list:
-    muutettu_varaus = []
-    muutettu_varaus.append(int(varaus[0]))
-    muutettu_varaus.append(varaus[1])
-    muutettu_varaus.append(varaus[2])
-    muutettu_varaus.append(varaus[3])
-    muutettu_varaus.append(datetime.strptime(varaus[4], "%Y-%m-%d").date())
-    muutettu_varaus.append(datetime.strptime(varaus[5], "%H:%M").time())
-    muutettu_varaus.append(int(varaus[6]))
-    muutettu_varaus.append(float(varaus[7]))
-    muutettu_varaus.append(varaus[8].lower() == "true")
-    muutettu_varaus.append(varaus[9])
-    muutettu_varaus.append(datetime.strptime(varaus[10], "%Y-%m-%d %H:%M:%S"))
-    return muutettu_varaus
+def edit_reservation(reservations: list[str]) -> object:
+    """Edits data types and generates a Reservation object from a list of reservation details."""
+    return Reservation(
+        reservation_id=int(reservations[0]),
+        name = reservations[1],
+        email = reservations[2],
+        phone = reservations[3],
+        reservation_date = datetime.strptime(reservations[4], "%Y-%m-%d").date(),
+        reservation_time = datetime.strptime(reservations[5], "%H:%M").time(),
+        reservation_duration = int(reservations[6]),
+        price = float(reservations[7]),
+        reservation_confirmed = reservations[8].lower() == "true",
+        reserved_room = reservations[9],
+        reservation_created = datetime.strptime(reservations[10], "%Y-%m-%d %H:%M:%S")
+    )
 
-def hae_varaukset(varaustiedosto: str) -> list:
-    varaukset = []
-    varaukset.append(["varausId", "nimi", "sähköposti", "puhelin", "varauksenPvm", "varauksenKlo", "varauksenKesto", "hinta", "varausVahvistettu", "varattuTila", "varausLuotu"])
-    with open(varaustiedosto, "r", encoding="utf-8") as f:
-        for varaus in f:
-            varaus = varaus.strip()
-            varaustiedot = varaus.split('|')
-            varaukset.append(muunna_varaustiedot(varaustiedot))
-    return varaukset
+def get_reservations(reservationfile: str) -> list[object]:
+    """Reads reservations from a file and returns a list of Reservation objects."""
+    reservations = []
+    with open(reservationfile, "r", encoding="utf-8") as f:
+        for reservation in f:
+            reservation = reservation.strip()
+            reservation_details = reservation.split('|')
+            reservations.append(edit_reservation(reservation_details))
+    return reservations
 
-def vahvistetut_varaukset(varaukset: list):
-    for varaus in varaukset[1:]:
-        if(varaus[8]):
-            print(f"- {varaus[1]}, {varaus[9]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}")
+class Reservation:
+    """A class to represent a reservation."""
+    def __init__(self, reservation_id: int, name: str, email: str, phone: str, reservation_date: datetime.date,
+                 reservation_time: datetime.time, reservation_duration: int, price: float, reservation_confirmed: bool,
+                 reserved_room: str, reservation_created: datetime):
+        self.reservation_id = reservation_id
+        self.name = name
+        self.email = email
+        self.phone = phone
+        self.reservation_date = reservation_date
+        self.reservation_time = reservation_time
+        self.reservation_duration = reservation_duration
+        self.price = price
+        self.reservation_confirmed = reservation_confirmed
+        self.reserved_room = reserved_room
+        self.reservation_created = reservation_created
+        
+    def long_reservation(self) -> bool:
+        """Checks if the reservation duration is 3 hours or more."""
+        return self.reservation_duration >= 3
+    
+    def confirmed(self) -> bool:
+        """Returns the confirmation status of the reservation."""
+        return self.reservation_confirmed
+    
+    def total_price(self) -> float:
+        """Calculates the total price of the reservation."""
+        return self.reservation_duration * self.price
 
+def confirmed_reservations(reservations: list[Reservation]) -> None:
+    for reservation in reservations:
+        if reservation.confirmed():
+            print(f"- {reservation.name}, {reservation.reserved_room}, {reservation.reservation_date.strftime('%d.%m.%Y')} klo {reservation.reservation_time.strftime('%H.%M')}")
     print()
 
-def pitkat_varaukset(varaukset: list):
-    for varaus in varaukset[1:]:
-        if(varaus[6] >= 3):
-            print(f"- {varaus[1]}, {varaus[4].strftime('%d.%m.%Y')} klo {varaus[5].strftime('%H.%M')}, kesto {varaus[6]} h, {varaus[9]}")
-
+def long_reservations(reservations: list[Reservation]) -> None:
+    for reservation in reservations:
+        if reservation.long_reservation():
+            print(f"- {reservation.name}, {reservation.reservation_date.strftime('%d.%m.%Y')} klo {reservation.reservation_time.strftime('%H.%M')}, kesto {reservation.reservation_duration} h, {reservation.reserved_room}")
     print()
 
-def varausten_vahvistusstatus(varaukset: list):
-    for varaus in varaukset[1:]:
-        if(varaus[8]):
-            print(f"{varaus[1]} → Vahvistettu")
+def reservation_confirmation_status(reservations: list[Reservation]) -> None:
+    for reservation in reservations:
+        if reservation.confirmed():
+            print(f"{reservation.name} → Vahvistettu")
         else:
-            print(f"{varaus[1]} → EI vahvistettu")
-
+            print(f"{reservation.name} → EI vahvistettu")
     print()
 
-def varausten_lkm(varaukset: list):
-    vahvistetutVaraukset = 0
-    eiVahvistetutVaraukset = 0
-    for varaus in varaukset[1:]:
-        if(varaus[8]):
-            vahvistetutVaraukset += 1
+def number_of_reservations(reservations: list[Reservation]) -> None:
+    confirmed_reservations = 0
+    unconfirmed_reservations = 0
+    for reservation in reservations:
+        if reservation.confirmed():
+            confirmed_reservations += 1
         else:
-            eiVahvistetutVaraukset += 1
-
-    print(f"- Vahvistettuja varauksia: {vahvistetutVaraukset} kpl")
-    print(f"- Ei-vahvistettuja varauksia: {eiVahvistetutVaraukset} kpl")
+            unconfirmed_reservations += 1
+    print(f"- Vahvistettuja varauksia: {confirmed_reservations} kpl")
+    print(f"- Ei-vahvistettuja varauksia: {unconfirmed_reservations} kpl")
     print()
 
-def varausten_kokonaistulot(varaukset: list):
-    varaustenTulot = 0
-    for varaus in varaukset[1:]:
-        if(varaus[8]):
-            varaustenTulot += varaus[6]*varaus[7]
-
-    print("Vahvistettujen varausten kokonaistulot:", f"{varaustenTulot:.2f}".replace('.', ','), "€")
+def total_revenue(reservations: list[Reservation]) -> None:
+    total_revenue = 0
+    for reservation in reservations:
+        if reservation.confirmed():
+            total_revenue += reservation.total_price()
+    print("Vahvistettujen varausten kokonaistulot:", f"{total_revenue:.2f}".replace('.', ','), "€")
     print()
 
 def main():
-    varaukset = hae_varaukset("varaukset.txt")
+    Reservations = get_reservations("varaukset.txt")
     print("1) Vahvistetut varaukset")
-    vahvistetut_varaukset(varaukset)
+    confirmed_reservations(Reservations)
     print("2) Pitkät varaukset (≥ 3 h)")
-    pitkat_varaukset(varaukset)
+    long_reservations(Reservations)
     print("3) Varausten vahvistusstatus")
-    varausten_vahvistusstatus(varaukset)
+    reservation_confirmation_status(Reservations)
     print("4) Yhteenveto vahvistuksista")
-    varausten_lkm(varaukset)
+    number_of_reservations(Reservations)
     print("5) Vahvistettujen varausten kokonaistulot")
-    varausten_kokonaistulot(varaukset)
+    total_revenue(Reservations)
 
 if __name__ == "__main__":
     main()
